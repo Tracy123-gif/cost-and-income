@@ -94,20 +94,30 @@ export default async function IngredientsPage({
             <Field label="Category (optional)">
               <Input name="category" placeholder="e.g. Dry goods" />
             </Field>
-            <Field label="Measured in" hint="Pick the type of measurement; we standardize to one base unit.">
+            <Field
+              label="Measured in"
+              hint="Whichever you buy in - kg or g, litres or ml - we standardize it to one unit below so costs always add up correctly."
+            >
               <Select name="baseUnit" defaultValue="GRAM">
-                <option value="GRAM">Weight (grams)</option>
-                <option value="ML">Volume (millilitres)</option>
+                <option value="GRAM">Weight (kg or g - stored as grams)</option>
+                <option value="ML">Volume (litres or ml - stored as ml)</option>
                 <option value="PIECE">Count (pieces)</option>
               </Select>
             </Field>
-            <Field label="Low stock alert level" hint="In the base unit above.">
+            <Field label="Low stock alert level" hint="Threshold only - it does not set current stock. In the unit above (e.g. grams).">
               <Input name="minStockLevel" type="number" step="any" min="0" defaultValue="0" />
             </Field>
             <Button type="submit" className="w-full">
               Add ingredient
             </Button>
           </form>
+          <p className="mt-3 text-xs text-zinc-500">
+            This just creates the ingredient - it starts at 0 stock. Next, go to{" "}
+            <Link href="/purchases" className="font-medium text-zinc-700 hover:underline">
+              Purchases
+            </Link>{" "}
+            to record what you actually bought (quantity + price); that&apos;s what sets stock and cost.
+          </p>
         </Card>
       </div>
     </div>

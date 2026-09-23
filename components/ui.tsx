@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-xl border border-zinc-200 bg-white p-4 shadow-sm ${className}`}>{children}</div>;
+  return <div className={`rounded-2xl border border-zinc-200/70 bg-zinc-50 p-5 ${className}`}>{children}</div>;
 }
 
 export function CardTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">{children}</h2>;
+  return <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">{children}</h2>;
 }
 
 export function StatTile({ label, value, sub, tone = "default" }: { label: string; value: string; sub?: string; tone?: "default" | "positive" | "negative" }) {
@@ -13,17 +13,18 @@ export function StatTile({ label, value, sub, tone = "default" }: { label: strin
   return (
     <Card>
       <div className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold ${toneClass}`}>{value}</div>
+      <div className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</div>
       {sub && <div className="mt-1 text-xs text-zinc-500">{sub}</div>}
     </Card>
   );
 }
 
-export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+export function PageHeader({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: ReactNode }) {
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 className="text-xl font-semibold text-zinc-900">{title}</h1>
+        {eyebrow && <div className="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-400">{eyebrow}</div>}
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">{title}</h1>
         {description && <p className="mt-1 text-sm text-zinc-500">{description}</p>}
       </div>
       {action}
@@ -39,7 +40,7 @@ export function Button({ children, className = "", variant = "primary", ...props
   };
   return (
     <button
-      className={`rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`}
+      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`}
       {...props}
     >
       {children}
@@ -53,7 +54,7 @@ export function LinkButton({ href, children, variant = "primary" }: { href: stri
     secondary: "bg-zinc-100 text-zinc-900 hover:bg-zinc-200",
   };
   return (
-    <a href={href} className={`inline-block rounded-md px-3 py-2 text-sm font-medium transition-colors ${styles[variant]}`}>
+    <a href={href} className={`inline-block rounded-full px-4 py-2 text-sm font-medium transition-colors ${styles[variant]}`}>
       {children}
     </a>
   );
@@ -70,7 +71,7 @@ export function Field({ label, children, hint }: { label: string; children: Reac
 }
 
 const inputClass =
-  "block w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500";
+  "block w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500";
 
 export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input className={inputClass} {...props} />;
@@ -102,12 +103,12 @@ export function Td({ children, className = "" }: { children?: ReactNode; classNa
 
 export function Badge({ children, tone = "default" }: { children: ReactNode; tone?: "default" | "warning" | "danger" | "success" }) {
   const styles = {
-    default: "bg-zinc-100 text-zinc-700",
+    default: "bg-zinc-200/70 text-zinc-700",
     warning: "bg-amber-100 text-amber-800",
     danger: "bg-red-100 text-red-700",
     success: "bg-emerald-100 text-emerald-700",
   };
-  return <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${styles[tone]}`}>{children}</span>;
+  return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[tone]}`}>{children}</span>;
 }
 
 export function EmptyState({ message }: { message: string }) {
@@ -116,5 +117,5 @@ export function EmptyState({ message }: { message: string }) {
 
 export function FormError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{message}</p>;
+  return <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{message}</p>;
 }

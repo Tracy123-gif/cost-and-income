@@ -32,9 +32,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50">
-        {business && <Nav businessName={business.name} />}
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
+      <body className="min-h-full flex flex-col bg-zinc-200">
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-6">
+          {business && <Nav businessName={business.name} />}
+          <main className="flex-1 rounded-3xl bg-white p-4 shadow-sm sm:p-6">{children}</main>
+        </div>
       </body>
     </html>
   );

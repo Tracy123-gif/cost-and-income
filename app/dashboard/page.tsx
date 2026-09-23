@@ -21,35 +21,44 @@ const PERIODS: { key: PeriodKey; label: string }[] = [
   { key: "mtd", label: "Month to date" },
 ];
 
-function ProfitTrendChart({ points, currency }: { points: { date: string; grossProfit: string }[]; currency: string }) {
-  if (points.length === 0) return <EmptyState message="No sales yet in this period." />;
+function ProfitTrendChart({ points }: { points: { date: string; grossProfit: string }[] }) {
+  if (points.length === 0) {
+    return <p className="py-8 text-center text-sm text-white/70">No sales yet in this period.</p>;
+  }
   const values = points.map((p) => Number(p.grossProfit));
   const max = Math.max(...values, 0);
   const min = Math.min(...values, 0);
   const range = max - min || 1;
   const width = 600;
-  const height = 120;
+  const height = 140;
   const step = points.length > 1 ? width / (points.length - 1) : 0;
   const coords = values.map((v, i) => {
     const x = points.length > 1 ? i * step : width / 2;
-    const y = height - ((v - min) / range) * height;
-    return `${x},${y}`;
+    const y = height - ((v - min) / range) * (height - 16) - 8;
+    return [x, y] as const;
   });
-  const zeroY = height - ((0 - min) / range) * height;
+  const linePoints = coords.map(([x, y]) => `${x},${y}`).join(" ");
+  const areaPoints = `0,${height} ${linePoints} ${width},${height}`;
 
   return (
     <div>
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full" preserveAspectRatio="none" height={120}>
-        <line x1="0" y1={zeroY} x2={width} y2={zeroY} stroke="#e4e4e7" strokeWidth={1} />
-        <polyline points={coords.join(" ")} fill="none" stroke="#18181b" strokeWidth={2} />
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full" preserveAspectRatio="none" height={140}>
+        <defs>
+          <linearGradient id="profitTrendFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="white" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <polygon points={areaPoints} fill="url(#profitTrendFill)" />
+        <polyline points={linePoints} fill="none" stroke="white" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+        {coords.map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r={3} fill="white" />
+        ))}
       </svg>
-      <div className="mt-2 flex justify-between text-xs text-zinc-400">
+      <div className="mt-2 flex justify-between text-xs text-white/70">
         <span>{formatDate(points[0].date)}</span>
         <span>{formatDate(points[points.length - 1].date)}</span>
       </div>
-      <p className="mt-1 text-xs text-zinc-500">
-        Daily gross profit, {currency} {min.toFixed(0)} to {currency} {max.toFixed(0)}
-      </p>
     </div>
   );
 }
@@ -81,7 +90,7 @@ export default async function DashboardPage({
 
   return (
     <div>
-      <PageHeader title="Dashboard" description="Where your business stands, in plain language." />
+      <PageHeader eyebrow="Overview" title="Dashboard" description="Where your business stands, in plain language." />
 
       {sp.onboarding === "complete" && (
         <Card className="mb-6 border-emerald-200 bg-emerald-50">
@@ -96,7 +105,7 @@ export default async function DashboardPage({
           <Link
             key={p.key}
             href={`/dashboard?period=${p.key}`}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+            className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${
               period === p.key && !isCustom ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
             }`}
           >
@@ -105,10 +114,10 @@ export default async function DashboardPage({
         ))}
         <form className="flex items-center gap-2" method="get">
           <input type="hidden" name="period" value="custom" />
-          <input type="date" name="from" defaultValue={sp.from} className="rounded-md border border-zinc-300 px-2 py-1 text-sm" />
+          <input type="date" name="from" defaultValue={sp.from} className="rounded-full border border-zinc-300 px-3 py-1 text-sm" />
           <span className="text-sm text-zinc-400">to</span>
-          <input type="date" name="to" defaultValue={sp.to} className="rounded-md border border-zinc-300 px-2 py-1 text-sm" />
-          <button type="submit" className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-200">
+          <input type="date" name="to" defaultValue={sp.to} className="rounded-full border border-zinc-300 px-3 py-1 text-sm" />
+          <button type="submit" className="rounded-full bg-zinc-100 px-3.5 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-200">
             Go
           </button>
         </form>
@@ -128,10 +137,15 @@ export default async function DashboardPage({
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardTitle>Profit trend</CardTitle>
-          <ProfitTrendChart points={trend.map((t) => ({ date: t.date, grossProfit: t.grossProfit.toString() }))} currency={business.currency} />
-        </Card>
+        <div className="rounded-2xl bg-gradient-to-br from-violet-600 via-fuchsia-500 to-amber-400 p-5 text-white lg:col-span-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-white/70">Profit trend</h2>
+            <span className="text-xs text-white/70">
+              Revenue {formatMoney(pnl.revenue, business.currency)} · Gross profit {formatMoney(pnl.grossProfit, business.currency)}
+            </span>
+          </div>
+          <ProfitTrendChart points={trend.map((t) => ({ date: t.date, grossProfit: t.grossProfit.toString() }))} />
+        </div>
 
         <Card>
           <CardTitle>Inventory value</CardTitle>
